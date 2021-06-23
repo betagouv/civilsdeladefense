@@ -171,6 +171,46 @@ RSpec.describe Administrator, type: :model do
       expect(administrator_invalid).to be_valid
     end
   end
+
+  it "should compute notice period difference in days" do
+    ENV["DAYS_INACTIVITY_PERIOD_BEFORE_DEACTIVATION"] = "100"
+    ENV["DAYS_NOTICE_PERIOD_BEFORE_DEACTIVATION"] = "20"
+    expect(Administrator.notice_period_target_date.to_date).to eq(80.days.ago.to_date)
+  end
+
+  describe "automatic deactivation" do
+    before do
+      ENV["DAYS_INACTIVITY_PERIOD_BEFORE_DEACTIVATION"] = "100"
+      ENV["DAYS_NOTICE_PERIOD_BEFORE_DEACTIVATION"] = "20"
+      administrator.reload
+      Administrator.deactivate_when_too_old
+      administrator.reload
+    end
+
+    context "connected long time ago" do
+      let!(:administrator) { create(:administrator, last_sign_in_at: 81.days.ago) }
+
+      it "marked" do
+        expect(administrator.marked_for_deactivation_on).to eq(Time.zone.now.to_date)
+      end
+    end
+
+    context "marked but has not connected since" do
+      let!(:administrator) { create(:administrator, marked_for_deactivation_on: 21.days.ago, last_sign_in_at: 101.days.ago) }
+
+      it "delete" do
+        expect(administrator.deleted_at&.to_date).to eq(Time.zone.now.to_date)
+      end
+    end
+
+    context "marked but has connected since" do
+      let!(:administrator) { create(:administrator, marked_for_deactivation_on: 21.days.ago, last_sign_in_at: Time.zone.now) }
+
+      it "doesn't delete" do
+        expect(administrator.deleted_at).to eq(nil)
+      end
+    end
+  end
 end
 
 # == Schema Information
@@ -192,6 +232,7 @@ end
 #  last_sign_in_at                 :datetime
 #  last_sign_in_ip                 :inet
 #  locked_at                       :datetime
+#  marked_for_deactivation_on      :date
 #  photo_content_type              :string
 #  photo_file_name                 :string
 #  photo_file_size                 :bigint

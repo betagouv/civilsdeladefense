@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_24_140135) do
+ActiveRecord::Schema.define(version: 2021_06_23_140253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -80,6 +80,7 @@ ActiveRecord::Schema.define(version: 2021_05_24_140135) do
     t.uuid "supervisor_administrator_id"
     t.uuid "grand_employer_administrator_id"
     t.uuid "organization_id"
+    t.date "marked_for_deactivation_on"
     t.index ["confirmation_token"], name: "index_administrators_on_confirmation_token", unique: true
     t.index ["email"], name: "index_administrators_on_email", unique: true
     t.index ["employer_id"], name: "index_administrators_on_employer_id"
@@ -131,7 +132,7 @@ ActiveRecord::Schema.define(version: 2021_05_24_140135) do
     t.index ["position"], name: "index_availability_ranges_on_position"
   end
 
-  create_table "benefit_job_offers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "benefit_job_offers", id: :uuid, default: -> { "public.gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "benefit_id", null: false
     t.uuid "job_offer_id", null: false
     t.datetime "created_at", precision: 6, null: false
@@ -196,7 +197,7 @@ ActiveRecord::Schema.define(version: 2021_05_24_140135) do
     t.index ["position"], name: "index_contract_types_on_position"
   end
 
-  create_table "department_users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "department_users", id: :uuid, default: -> { "public.gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.uuid "department_id", null: false
     t.datetime "created_at", precision: 6, null: false
@@ -205,7 +206,7 @@ ActiveRecord::Schema.define(version: 2021_05_24_140135) do
     t.index ["user_id"], name: "index_department_users_on_user_id"
   end
 
-  create_table "departments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "departments", id: :uuid, default: -> { "public.gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
     t.string "name_region"
     t.string "code_region"
@@ -274,7 +275,7 @@ ActiveRecord::Schema.define(version: 2021_05_24_140135) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "frequently_asked_questions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "frequently_asked_questions", id: :uuid, default: -> { "public.gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
     t.integer "position"
     t.string "value"
