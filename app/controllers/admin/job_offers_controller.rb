@@ -5,7 +5,7 @@ class Admin::JobOffersController < Admin::BaseController
   layout :choose_layout
 
   include JobOfferStateActions
-  include JobOfferStatisticsActions
+  include JobOfferStats
 
   # GET /admin/job_offers
   # GET /admin/job_offers.json
@@ -49,7 +49,7 @@ class Admin::JobOffersController < Admin::BaseController
 
   def export
     job_offer = JobOffer.find(params[:id])
-    file = Exporter::JobOffer.new(job_offer, current_administrator).generate
+    file = Exporter::JobOffer.new({stats: export_data, job_offer: job_offer}, current_administrator).generate
 
     send_data file.read, filename: "#{Time.zone.today}_e-recrutement_offre.xlsx"
   end
@@ -190,7 +190,7 @@ class Admin::JobOffersController < Admin::BaseController
   private
 
   def set_job_offers
-    @employers = Employer.all
+    @employers = Employer.tree
     @job_offers_active = @job_offers.admin_index_active
     @job_offers_featured = @job_offers.admin_index_featured
     @job_offers_archived = @job_offers.admin_index_archived
@@ -227,6 +227,7 @@ class Admin::JobOffersController < Admin::BaseController
       is_remote_possible available_immediately study_level_id experience_level_id bop_id
       sector_id estimate_monthly_salary_net estimate_annual_salary_gross
       location city county county_code country_code postcode region spontaneous
+      organization_description
     ]
     fields << {benefit_ids: []}
     job_offer_actors_attributes = %i[id role _destroy]

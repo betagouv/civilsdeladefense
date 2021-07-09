@@ -33,7 +33,7 @@ class DailySummary
 
   def send_mail(organization)
     service_name = organization.service_name
-    administrators = Administrator.find @concerned_administrators.map(&:uuid)
+    administrators = Administrator.find(@concerned_administrators.map(&:uuid))
 
     @concerned_administrators.each do |concerned_administrator|
       administrator = administrators.detect { |x| x.id == concerned_administrator.uuid }
@@ -72,7 +72,7 @@ class DailySummary
         concerned_administrator = DailySummaryConcernedAdministrator.new(uuid: administrator.id)
       end
       concerned_administrator.add_summary_info(
-        title: job_offer.title,
+        title: "#{job_offer.identifier} #{job_offer.title}",
         link: url_helpers.edit_admin_job_offer_url(job_offer),
         kind: kind
       )

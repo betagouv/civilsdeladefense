@@ -15,34 +15,12 @@ class Admin::Stats::JobApplicationsController < Admin::Stats::BaseController
     build_stats
     build_stats_per_profile
     build_state_duration
-    build_employer_ids unless current_administrator.bant?
 
     respond_to do |format|
       format.html {}
       format.js {}
       format.xlsx {
-        data = {
-          job_applications_count: @job_applications_count,
-          date_start: @date_start,
-          date_end: @date_end,
-          per_day: @per_day,
-          state_duration: @state_duration,
-          per_state: @per_state,
-          per_experiences_fit_job_offer: @per_experiences_fit_job_offer,
-          per_has_corporate_experience: @per_has_corporate_experience,
-          per_is_currently_employed: @per_is_currently_employed,
-          per_rejection_reason: @per_rejection_reason,
-          per_gender: @per_gender,
-          per_age_range: @per_age_range,
-          bops: @bops,
-          contract_types: @contract_types,
-          employers: @employers,
-          rejection_reasons: @rejection_reasons,
-          age_ranges: @age_ranges,
-          q: permitted_params[:q] || {}
-
-        }
-        file = Exporter::StatJobApplications.new(data, current_administrator).generate
+        file = Exporter::StatJobApplications.new(export_data, current_administrator).generate
         send_data file.read, filename: "#{Time.zone.today}_e-recrutement_stats_candidatures.xlsx"
       }
     end
@@ -74,10 +52,6 @@ class Admin::Stats::JobApplicationsController < Admin::Stats::BaseController
     @per_age_range = root_rel_profile.group(:age_range_id).count
     @per_has_corporate_experience = root_rel_profile.group(:has_corporate_experience).count
     @per_is_currently_employed = root_rel_profile.group(:is_currently_employed).count
-  end
-
-  def build_employer_ids
-    @employer_ids = @job_applications_filtered.reorder("").pluck(:employer_id).uniq
   end
 
   def filter_by_full_text
@@ -135,7 +109,7 @@ class Admin::Stats::JobApplicationsController < Admin::Stats::BaseController
   def fetch_base_ressources
     @bops = Bop.all
     @contract_types = ContractType.all
-    @employers = Employer.all
+    @employers = Employer.tree
     @rejection_reasons = RejectionReason.all
     @age_ranges = AgeRange.all
   end
@@ -148,5 +122,24 @@ class Admin::Stats::JobApplicationsController < Admin::Stats::BaseController
         contract_type_id_in: [], job_offer_bop_id_in: []
       }
     )
+  end
+
+  def export_data
+    {
+      job_applications_count: @job_applications_count,
+      date_start: @date_start,
+      date_end: @date_end,
+      state_duration: @state_duration,
+      per_state: @per_state,
+      per_experiences_fit_job_offer: @per_experiences_fit_job_offer,
+      per_has_corporate_experience: @per_has_corporate_experience,
+      per_is_currently_employed: @per_is_currently_employed,
+      per_rejection_reason: @per_rejection_reason,
+      per_gender: @per_gender,
+      per_age_range: @per_age_range,
+      rejection_reasons: @rejection_reasons,
+      age_ranges: @age_ranges,
+      q: permitted_params[:q] || {}
+    }
   end
 end
