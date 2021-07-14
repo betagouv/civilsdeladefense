@@ -8,7 +8,7 @@
   %h3= file_type.name
   .rf-mb-1w= hint_text
   - data = { controller: "file-drop", action: "dragenter->file-drop#highlight dragover->file-drop#highlight dragleave->file-drop#unhighlight drop->file-drop#unhighlight drop->file-drop#setFile" }
-  .rf-card.rf-card--no-arrow.rf-card--no-full-height.rf-mb-3w{ data: data }
+  .rf-card.rf-card--no-arrow.rf-card--no-full-height.rf-mb-3w.hidden-file-input{ data: data }
     .rf-card__body
       = simple_form_for([:account, job_application, job_application_file], options) do |f|
         - if job_application_file.new_record?

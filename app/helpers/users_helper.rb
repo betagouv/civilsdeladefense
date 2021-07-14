@@ -57,7 +57,7 @@ module UsersHelper
       if file.present?
         link = link_for_file(job_application, job_application_file)
         link_text = link_to "fichier", link, target: "_blank", class: "text-dark-gray"
-        txt << "Vous avez déjà téléversé ce #{link_text}, il est en attente de validation.".html_safe
+        txt << "<span class=\"font-weight-bold\">Vous avez déjà téléversé ce #{link_text}</span>, il est en attente de validation.".html_safe
         txt << 'Pour téléverser une nouvelle version,
                 vous pouvez utiliser la zone ci-dessous.'.html_safe
       end
