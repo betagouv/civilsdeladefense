@@ -351,3 +351,12 @@ h2 {
     fill: rgba(0, 0, 246);
   }
 }
+
+.hidden-file-input input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
